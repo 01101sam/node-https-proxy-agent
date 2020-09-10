@@ -226,7 +226,7 @@ function omit<T extends object, K extends [...(keyof T)[]]>(
 ): {
 		[K2 in Exclude<keyof T, K[number]>]: T[K2];
 	} {
-	const ret = {} as {		
+	const ret = {} as {
 		[K in keyof typeof obj]: typeof obj[K];
 
 	};
