@@ -26,6 +26,7 @@ const debug = createDebug('https-proxy-agent:agent');
  */
 export default class HttpsProxyAgent extends Agent {
 	private secureProxy: boolean;
+	private secureContext: tls.SecureContext | undefined;
 	private proxy: HttpsProxyAgentOptions;
 
 	constructor(_opts: string | HttpsProxyAgentOptions) {
@@ -48,7 +49,7 @@ export default class HttpsProxyAgent extends Agent {
 		// If `true`, then connect to the proxy server over TLS.
 		// Defaults to `false`.
 		this.secureProxy = opts.secureProxy || isHTTPS(proxy.protocol);
-
+		this.secureContext = opts.secureContext || undefined;
 		// Prefer `hostname` over `host`, and set the `port` if needed.
 		proxy.host = proxy.hostname || proxy.host;
 		if (typeof proxy.port === 'string') {
@@ -142,7 +143,8 @@ export default class HttpsProxyAgent extends Agent {
 				return tls.connect({
 					...omit(opts, 'host', 'hostname', 'path', 'port'),
 					socket,
-					servername
+					servername,
+					secureContext: this.secureContext
 				});
 			}
 
