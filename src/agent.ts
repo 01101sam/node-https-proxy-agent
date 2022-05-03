@@ -1,5 +1,5 @@
-import net from 'net';
-import tls from 'tls';
+import * as net from 'net';
+import * as tls from 'tls';
 import url from 'url';
 import assert from 'assert';
 import createDebug from 'debug';
@@ -28,6 +28,8 @@ export default class HttpsProxyAgent extends Agent {
 	private secureProxy: boolean;
 	private secureContext: tls.SecureContext | undefined;
 	private proxy: HttpsProxyAgentOptions;
+	public timeout: number | null;
+
 
 	constructor(_opts: string | HttpsProxyAgentOptions) {
 		let opts: HttpsProxyAgentOptions;
@@ -43,6 +45,8 @@ export default class HttpsProxyAgent extends Agent {
 		}
 		debug('creating new HttpsProxyAgent instance: %o', opts);
 		super(opts);
+
+		this.timeout = opts.timeout || null;
 
 		const proxy: HttpsProxyAgentOptions = { ...opts };
 
@@ -99,6 +103,14 @@ export default class HttpsProxyAgent extends Agent {
 			socket = net.connect(proxy as net.NetConnectOpts);
 		}
 
+		if (this.timeout) {
+			socket.setTimeout(this.timeout);
+
+			socket.on('timeout', () => {
+				socket.end();
+			});
+		}
+
 		const headers: OutgoingHttpHeaders = { ...proxy.headers };
 		const hostname = `${opts.host}:${opts.port}`;
 		let payload = `CONNECT ${hostname} HTTP/1.1\r\n`;
@@ -112,13 +124,15 @@ export default class HttpsProxyAgent extends Agent {
 
 		// The `Host` header should only include the port
 		// number when it is not the default port.
-		let { host, port, secureEndpoint } = opts;
-		if (!isDefaultPort(port, secureEndpoint)) {
-			host += `:${port}`;
-		}
-		headers.Host = host;
+		//let { host, port, secureEndpoint } = opts;
+		//if (!isDefaultPort(port, secureEndpoint)) {
+		//	host += `:${port}`;
+		//}
+		//headers.Host = host;
 
+		headers.Host = hostname;
 		headers.Connection = 'close';
+
 		for (const name of Object.keys(headers)) {
 			payload += `${name}: ${headers[name]}\r\n`;
 		}
@@ -140,11 +154,22 @@ export default class HttpsProxyAgent extends Agent {
 				// this socket connection to a TLS connection.
 				debug('Upgrading socket connection to TLS');
 				const servername = opts.servername || opts.host;
-				return tls.connect({
+				const tlsSocket = tls.connect({
 					...omit(opts, 'host', 'hostname', 'path', 'port'),
 					socket,
 					servername,
 					secureContext: this.secureContext
+				});
+				return new Promise((resolve, reject) => {
+					const errCb = (err: Error) => {
+						reject(err);
+					};
+					tlsSocket.once('error', errCb);
+
+					tlsSocket.once('secureConnect', () => {
+						resolve(tlsSocket);
+						tlsSocket.off('error', errCb);
+					});
 				});
 			}
 
@@ -199,10 +224,11 @@ function omit<T extends object, K extends [...(keyof T)[]]>(
 	obj: T,
 	...keys: K
 ): {
-	[K2 in Exclude<keyof T, K[number]>]: T[K2];
-} {
-	const ret = {} as {
-		[K in keyof typeof obj]: (typeof obj)[K];
+		[K2 in Exclude<keyof T, K[number]>]: T[K2];
+	} {
+	const ret = {} as {		
+		[K in keyof typeof obj]: typeof obj[K];
+
 	};
 	let key: keyof typeof obj;
 	for (key in obj) {
