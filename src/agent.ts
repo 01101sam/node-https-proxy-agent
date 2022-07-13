@@ -158,6 +158,11 @@ export default class HttpsProxyAgent extends Agent {
 					...omit(opts, 'host', 'hostname', 'path', 'port'),
 					socket,
 					servername,
+					ca: proxy.ca,
+					key: proxy.key,
+					cert: proxy.cert,
+					pfx: proxy.pfx,
+					passphrase: proxy.passphrase,
 					secureContext: this.secureContext
 				});
 				return new Promise((resolve, reject) => {
