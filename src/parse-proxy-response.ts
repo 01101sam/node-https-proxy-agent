@@ -1,5 +1,5 @@
 import createDebug from 'debug';
-import { Readable } from 'stream';
+import {Readable} from 'stream';
 
 const debug = createDebug('https-proxy-agent:parse-proxy-response');
 

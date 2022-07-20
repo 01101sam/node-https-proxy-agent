@@ -1,3 +1,9 @@
-History.md
+.git
+.github
 test
+
 .travis.yml
+.editorconfig
+.eslintrc.js
+.gitignore
+tsconfig.json
