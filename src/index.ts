@@ -7,8 +7,9 @@ import {Agent, AgentOptions, ClientRequest, RequestOptions} from 'agent-base';
 import {SocksClient, SocksClientOptions, SocksProxy} from 'socks';
 import {Url} from 'url';
 import parseProxyResponse from './parse-proxy-response';
+import createDebug from 'debug';
 
-const debug = console.debug;//createDebug('node-proxy-agent:agent');
+const debug = createDebug('node-proxy-agent:agent');
 
 
 interface BaseSocksProxyAgentOptions {

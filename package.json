@@ -10,7 +10,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "tsc",
-    "test": "mocha --reporter spec",
+    "test": "mocha --reporter spec --timeout 1000 --exit",
     "test-lint": "eslint src --ext .js,.ts",
     "prepublishOnly": "npm run build"
   },
