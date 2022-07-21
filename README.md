@@ -26,20 +26,20 @@ Installation
 Install with `npm`:
 
 ``` bash
-$ npm install @sam01101/https-proxy-agent
+$ npm install @sam01101/node-proxy-agent
 ```
 
 Examples
 --------
 
-## HttpsProxyAgent
+### HttpsProxyAgent
 
 #### `https` module example
 
 ``` js
 var url = require('url');
 var https = require('https');
-var HttpsProxyAgent = require('https-proxy-agent');
+var HttpsProxyAgent = require('@sam01101/node-proxy-agent');
 
 // HTTP/HTTPS proxy to connect to
 var proxy = process.env.http_proxy || 'http://168.63.76.32:3128';
@@ -65,7 +65,7 @@ https.get(options, function (res) {
 ``` js
 var url = require('url');
 var WebSocket = require('ws');
-var HttpsProxyAgent = require('https-proxy-agent');
+var HttpsProxyAgent = require('@sam01101/node-proxy-agent');
 
 // HTTP/HTTPS proxy to connect to
 var proxy = process.env.http_proxy || 'http://168.63.76.32:3128';
@@ -95,13 +95,13 @@ socket.on('message', function (data, flags) {
 });
 ```
 
-## SocksProxyAgent
+### SocksProxyAgent
 
 #### TypeScript example
 
 ```ts
 import https from 'https';
-import {SocksProxyAgent} from 'socks-proxy-agent';
+import {SocksProxyAgent} from '@sam01101/node-proxy-agent';
 
 const info = {
 	hostname: 'br41.nordvpn.com',
@@ -120,7 +120,7 @@ https.get('https://ipinfo.io', {agent}, (res) => {
 ```js
 var url = require('url');
 var http = require('http');
-var { SocksProxyAgent } = require('socks-proxy-agent');
+var { SocksProxyAgent } = require('@sam01101/node-proxy-agent');
 // SOCKS proxy to connect to
 var proxy = process.env.socks_proxy || 'socks://127.0.0.1:1080';
 console.log('using proxy server %j', proxy);
@@ -142,7 +142,7 @@ http.get(opts, function (res) {
 ```js
 var url = require('url');
 var https = require('https');
-var { SocksProxyAgent } = require('socks-proxy-agent');
+var { SocksProxyAgent } = require('@sam01101/node-proxy-agent');
 // SOCKS proxy to connect to
 var proxy = process.env.socks_proxy || 'socks://127.0.0.1:1080';
 console.log('using proxy server %j', proxy);
@@ -163,7 +163,7 @@ https.get(opts, function (res) {
 
 ``` js
 var WebSocket = require('ws');
-var { SocksProxyAgent } = require('socks-proxy-agent');
+var { SocksProxyAgent } = require('@sam01101/node-proxy-agent');
 // SOCKS proxy to connect to
 var proxy = process.env.socks_proxy || 'socks://127.0.0.1:1080';
 console.log('using proxy server %j', proxy);
@@ -225,31 +225,5 @@ The `options` argument may either be a string URI of the proxy server to use, or
 * `password` - String - Password for the SOCKS proxy.
 * You can use `auth` instead of `username` and `password`, it will auto set the `username` and `password` properties.
 * Any other options given are passed to the `net.connect()`/`tls.connect()` functions.
-
-License
--------
-
-(The MIT License)
-
-Copyright (c) 2013 Nathan Rajlich &lt;nathan@tootallnate.net&gt;
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-'Software'), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 [CONNECT]: http://en.wikipedia.org/wiki/HTTP_tunnel#HTTP_CONNECT_Tunneling

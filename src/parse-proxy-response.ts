@@ -1,7 +1,7 @@
 import createDebug from 'debug';
 import {Readable} from 'stream';
 
-const debug = createDebug('https-proxy-agent:parse-proxy-response');
+const debug = createDebug('node-proxy-agent:parse-proxy-response');
 
 export interface ProxyResponse {
 	statusCode: number;

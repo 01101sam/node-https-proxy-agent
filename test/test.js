@@ -226,7 +226,7 @@ describe('HttpsProxyAgent', () => {
 			const auth = 'username:password'
 			// set a proxy authentication function for this test
 			proxy.authenticate = (req, fn) => {
-				assert.strictEqual(`Basic ${btoa(auth)}`, req.headers['proxy-authorization'])
+				assert.strictEqual(`Basic ${Buffer.from(auth).toString('base64')}`, req.headers['proxy-authorization'])
 				fn(null, false)
 				done()
 			}
