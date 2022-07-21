@@ -3,7 +3,7 @@ Node Proxy
 
 ### An HTTP(s) and SOCKS proxy `http.Agent` implementation for HTTPS
 
-[![Build Status](https://github.com/01101sam/node-https-proxy-agent/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/01101sam/node-https-proxy-agent/actions/workflows/test.yml)
+[![Build Status](https://github.com/01101sam/node-proxy-agent/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/01101sam/node-proxy-agent/actions/workflows/test.yml)
 
 This module provides an `http.Agent` implementation that connects to a specified
 HTTP, HTTPS and SOCKS proxy server, and can be used with the built-in `https` module.

@@ -1,6 +1,6 @@
 {
-  "name": "@sam01101/https-proxy-agent",
-  "version": "5.1.0",
+  "name": "@sam01101/node-proxy-agent",
+  "version": "5.1.1",
   "description": "An HTTP(s) and SOCKS proxy `http.Agent` implementation for HTTPS and SOCKS",
   "main": "dist/index",
   "types": "dist/index",
@@ -10,24 +10,31 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "tsc",
-    "test": "mocha --reporter spec --timeout 1000 --exit",
+    "test": "mocha --reporter spec --timeout 2000 --exit",
     "test-lint": "eslint src --ext .js,.ts",
     "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/01101sam/node-https-proxy-agent.git"
+    "url": "git://github.com/01101sam/node-proxy-agent.git"
   },
   "keywords": [
+    "socks",
+    "socks4",
+    "socks5",
+    "http",
     "https",
     "proxy",
     "endpoint",
     "agent"
   ],
-  "author": "Nathan Rajlich <nathan@tootallnate.net> (http://n8.io/)",
+  "authors": [
+    "Nathan Rajlich <nathan@tootallnate.net> (http://n8.io/)",
+    "Sam <100821827+01101sam@users.noreply.github.com>"
+  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/01101sam/node-https-proxy-agent.git/issues"
+    "url": "https://github.com/01101sam/node-proxy-agent.git/issues"
   },
   "dependencies": {
     "agent-base": "6.0.2",

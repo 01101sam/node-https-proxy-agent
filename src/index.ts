@@ -148,7 +148,7 @@ class HttpsProxyAgent extends Agent {
 		let payload = `CONNECT ${hostname} HTTP/1.1\r\n`
 
 		// Inject the `Proxy-Authorization` header if necessary.
-		if (proxy.auth) headers['Proxy-Authorization'] = `Basic ${btoa(proxy.auth)}`
+		if (proxy.auth) headers['Proxy-Authorization'] = `Basic ${Buffer.from(proxy.auth).toString('base64')}`
 
 		headers.Host = hostname
 		headers.Connection = 'close'
