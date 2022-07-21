@@ -201,7 +201,7 @@ The `options` argument may either be a string URI of the proxy server to use, or
 * `protocol` - String - If `https:`, then use TLS to connect to the proxy.
 * `headers` - Object - Additional HTTP headers to be sent on the HTTP CONNECT method.
 * `timeout` - Number - Timeout in milliseconds for the CONNECT method.
-* `ca` - String - Custom CA certificate to use for the TLS connection.
+* `tls` - `tls.SecureContextOptions` - TLS configuration options.
 * `auth` - String - Basic Proxy Authentication for the proxy.
 * You can use `username` and `password` instead of `auth`, it will be converted to `auth`.
 * Any other options given are passed to the `net.connect()`/`tls.connect()` functions.
@@ -221,7 +221,6 @@ The `options` argument may either be a string URI of the proxy server to use, or
 * `type` - Number - SOCKS version to use. Defaults to 5.
 * `tls` - `tls.ConnectionOptions` - TLS options to use for the SOCKS connection.
 * `timeout` - Number - Timeout in milliseconds for the CONNECT method.
-* `ca` - String - Custom CA certificate to use for the TLS connection.
 * `username` - String - Username for the SOCKS proxy.
 * `password` - String - Password for the SOCKS proxy.
 * You can use `auth` instead of `username` and `password`, it will auto set the `username` and `password` properties.
