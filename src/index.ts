@@ -74,7 +74,6 @@ class HttpsProxyAgent extends Agent {
 	private readonly tlsSecureContext: tls.SecureContext | undefined
 	public readonly proxy: HttpsProxyAgentOptions
 	private readonly secureEndpoint: boolean
-	private readonly ca: string | Buffer | Array<string | Buffer> | undefined
 	public timeout: number | null
 
 
@@ -88,7 +87,6 @@ class HttpsProxyAgent extends Agent {
 		// Defaults to `false`.
 		this.secureEndpoint = Boolean(this.proxy.protocol?.startsWith('https'))
 		this.tlsSecureContext = proxyOptions.tls ? tls.createSecureContext(proxyOptions.tls) : undefined
-		this.ca = proxyOptions.tls?.ca || proxyOptions.ca || undefined
 		this.timeout = proxyOptions.timeout ?? null
 	}
 
