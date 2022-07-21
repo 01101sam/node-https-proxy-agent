@@ -5,7 +5,6 @@ import dns from 'dns';
 import {OutgoingHttpHeaders} from 'http';
 import {Agent, AgentOptions, ClientRequest, RequestOptions} from 'agent-base';
 import {SocksClient, SocksClientOptions, SocksProxy} from 'socks';
-import {Url} from 'url';
 import parseProxyResponse from './parse-proxy-response';
 import createDebug from 'debug';
 
@@ -19,8 +18,6 @@ interface BaseSocksProxyAgentOptions {
 	type?: number;
 	tls?: tls.ConnectionOptions | null;
 	timeout?: number;
-	// Custom Cert
-	ca?: string | null;
 	// Auth options
 	auth?: string | null;
 	username?: string | null;
@@ -31,22 +28,20 @@ interface BaseHttpsProxyAgentOptions {  // extend BaseSocksProxyAgentOptions
 	hostname?: string;
 	port?: string | number;
 	protocol?: string;
-	tls?: tls.SecureContext | null;
+	tls?: tls.SecureContextOptions | null;
 	headers?: OutgoingHttpHeaders;
 	secureEndpoint?: boolean;  // HTTPS / TLS Connection
 	timeout?: number;
-	// Custom Cert
-	ca?: string | null;
 	// Auth options
 	auth?: string | null;
 	username?: string | null;
 	password?: string | null;
 }
 
-export interface HttpsProxyAgentOptions extends AgentOptions, BaseHttpsProxyAgentOptions, Partial<Omit<Url & net.NetConnectOpts & tls.ConnectionOptions, keyof BaseHttpsProxyAgentOptions>> {
+export interface HttpsProxyAgentOptions extends AgentOptions, BaseHttpsProxyAgentOptions, Partial<Omit<URL & net.NetConnectOpts & tls.ConnectionOptions, keyof BaseHttpsProxyAgentOptions>> {
 }
 
-export interface SocksProxyAgentOptions extends AgentOptions, BaseSocksProxyAgentOptions, Partial<Omit<Url & SocksProxy, keyof BaseSocksProxyAgentOptions>> {
+export interface SocksProxyAgentOptions extends AgentOptions, BaseSocksProxyAgentOptions, Partial<Omit<URL & SocksProxy, keyof BaseSocksProxyAgentOptions>> {
 }
 
 function _normalizeProxyOptions(
@@ -78,7 +73,8 @@ function _normalizeProxyOptions(
 class HttpsProxyAgent extends Agent {
 	private readonly tlsSecureContext: tls.SecureContext | undefined
 	public readonly proxy: HttpsProxyAgentOptions
-	private readonly ca: string | undefined
+	private readonly secureEndpoint: boolean
+	private readonly ca: string | Buffer | Array<string | Buffer> | undefined
 	public timeout: number | null
 
 
@@ -88,17 +84,17 @@ class HttpsProxyAgent extends Agent {
 		super(proxyOptions)
 
 		this.proxy = HttpsProxyAgent._parseHttpsProxy(proxyOptions)
-		this.ca = proxyOptions.ca || undefined
-		this.tlsSecureContext = proxyOptions.tls != null ? proxyOptions.tls : undefined
+		// If `true`, then connect to the proxy server over TLS.
+		// Defaults to `false`.
+		this.secureEndpoint = Boolean(this.proxy.protocol?.startsWith('https'))
+		this.tlsSecureContext = proxyOptions.tls ? tls.createSecureContext(proxyOptions.tls) : undefined
+		this.ca = proxyOptions.tls?.ca || proxyOptions.ca || undefined
 		this.timeout = proxyOptions.timeout ?? null
 	}
 
 	private static _parseHttpsProxy(opts: HttpsProxyAgentOptions): HttpsProxyAgentOptions {
 		const proxy: HttpsProxyAgentOptions = opts
 
-		// If `true`, then connect to the proxy server over TLS.
-		// Defaults to `false`.
-		proxy.secureEndpoint = Boolean(proxy.protocol?.startsWith('https'))
 		if (typeof proxy.port === 'string') proxy.port = parseInt(proxy.port, 10)
 		// Use default port for proxy servers if not specified.
 		else if (!proxy.port && proxy.host) proxy.port = proxy.secureEndpoint ? 443 : 80
@@ -133,8 +129,7 @@ class HttpsProxyAgent extends Agent {
 		req: ClientRequest,
 		opts: RequestOptions
 	): Promise<net.Socket> {
-		const {proxy} = this
-		const {secureEndpoint} = proxy
+		const {proxy, secureEndpoint} = this
 
 		// Create a socket connection to the proxy server.
 		debug(`Creating \`${secureEndpoint ? 'tls' : 'net'}.Socket\`: %o`, proxy)
@@ -153,10 +148,7 @@ class HttpsProxyAgent extends Agent {
 		let payload = `CONNECT ${hostname} HTTP/1.1\r\n`
 
 		// Inject the `Proxy-Authorization` header if necessary.
-		if (proxy.auth)
-			headers['Proxy-Authorization'] = `Basic ${Buffer.from(
-				proxy.auth
-			).toString('base64')}`
+		if (proxy.auth) headers['Proxy-Authorization'] = `Basic ${btoa(proxy.auth)}`
 
 		headers.Host = hostname
 		headers.Connection = 'close'
@@ -184,7 +176,6 @@ class HttpsProxyAgent extends Agent {
 					...omit(opts, 'host', 'hostname', 'path', 'port'),
 					socket,
 					servername: opts.servername || opts.host,
-					ca: this.ca,
 					secureContext: this.tlsSecureContext
 				})
 				return new Promise((resolve, reject) => {
@@ -239,7 +230,6 @@ class HttpsProxyAgent extends Agent {
 class SocksProxyAgent extends Agent {
 	private readonly tlsConnectionOptions: tls.ConnectionOptions | undefined
 	public readonly proxy: SocksProxy
-	private readonly ca: string | undefined
 	public timeout: number | null
 
 	constructor(input: string | SocksProxyAgentOptions, options?: SocksProxyAgentOptions) {
@@ -248,7 +238,6 @@ class SocksProxyAgent extends Agent {
 		super(proxyOptions)
 
 		this.proxy = SocksProxyAgent._parseSocksProxy(proxyOptions)
-		this.ca = proxyOptions.ca || undefined
 		this.tlsConnectionOptions = proxyOptions.tls != null ? proxyOptions.tls : {}
 		this.timeout = proxyOptions.timeout ?? null
 	}
@@ -287,7 +276,7 @@ class SocksProxyAgent extends Agent {
 			password = opts.password
 		}
 		if (username) {
-			Object.defineProperty(proxy, 'username', {
+			Object.defineProperty(proxy, 'userId', {
 				value: username,
 				enumerable: false
 			})
@@ -361,7 +350,6 @@ class SocksProxyAgent extends Agent {
 				...omit(opts, 'host', 'hostname', 'path', 'port'),
 				socket,
 				servername,
-				ca: this.ca,
 				...this.tlsConnectionOptions
 			})
 
