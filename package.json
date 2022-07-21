@@ -1,6 +1,6 @@
 {
   "name": "@sam01101/https-proxy-agent",
-  "version": "5.0.3",
+  "version": "5.1.0",
   "description": "An HTTP(s) and SOCKS proxy `http.Agent` implementation for HTTPS and SOCKS",
   "main": "dist/index",
   "types": "dist/index",
