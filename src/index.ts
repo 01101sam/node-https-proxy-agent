@@ -5,7 +5,7 @@ import dns from 'dns';
 import {OutgoingHttpHeaders} from 'http';
 import {Agent, AgentOptions, ClientRequest, RequestOptions} from 'agent-base';
 import {SocksClient, SocksClientOptions, SocksProxy} from 'socks';
-import parseProxyResponse from './parse-proxy-response';
+import parseProxyResponse from './parse-proxy-response.ts';
 import createDebug from 'debug';
 
 const debug = createDebug('node-proxy-agent:agent');
