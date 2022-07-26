@@ -26,7 +26,13 @@ Installation
 Install with `npm`:
 
 ``` bash
-$ npm install @sam01101/node-proxy-agent
+npm i @sam01101/node-proxy-agent
+```
+
+Import with `deno`:
+
+``` js
+import {SocksProxyAgent, HttpsProxyAgent} from "https://deno.land/x/proxy_agent/src/index.ts";
 ```
 
 Examples
@@ -34,30 +40,28 @@ Examples
 
 ### HttpsProxyAgent
 
-#### `https` module example
+#### `https` module example (TypeScript)
 
 ``` js
-var url = require('url');
-var https = require('https');
-var HttpsProxyAgent = require('@sam01101/node-proxy-agent');
+import fetch from "node-fetch";
+import {HttpsProxyAgent} from '@sam01101/node-proxy-agent';
 
-// HTTP/HTTPS proxy to connect to
-var proxy = process.env.http_proxy || 'http://168.63.76.32:3128';
-console.log('using proxy server %j', proxy);
 
-// HTTPS endpoint for the proxy to connect to
-var endpoint = process.argv[2] || 'https://graph.facebook.com/tootallnate';
-console.log('attempting to GET %j', endpoint);
-var options = url.parse(endpoint);
+(async () => {
+	// HTTP/HTTPS proxy to connect to
+	const proxy = process.env.http_proxy || 'http://168.63.76.32:3128';
+	console.log('using proxy server %j', proxy);
 
-// create an instance of the `HttpsProxyAgent` class with the proxy server information
-var agent = new HttpsProxyAgent(proxy);
-options.agent = agent;
+	// HTTPS endpoint for the proxy to connect to
+	const endpoint = process.argv[2] || 'https://graph.facebook.com/tootallnate';
+	console.log('attempting to GET %j', endpoint);
 
-https.get(options, function (res) {
-  console.log('"response" event!', res.headers);
-  res.pipe(process.stdout);
-});
+	const response = await fetch(endpoint, {
+		// create an instance of the `HttpsProxyAgent` class with the proxy server information
+		agent: new HttpsProxyAgent(proxy)
+	});
+	console.log(`HTTP Status: ${response.status} OK: ${response.ok}`);
+})();
 ```
 
 #### `ws` WebSocket connection example
