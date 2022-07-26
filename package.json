@@ -1,9 +1,9 @@
 {
-  "name": "@sam01101/node-proxy-agent",
-  "version": "5.1.3",
+  "name": "proxy_agent",
+  "version": "5.1.4",
   "description": "An HTTP(s) and SOCKS proxy `http.Agent` implementation for HTTPS and SOCKS",
-  "main": "dist/index",
-  "types": "dist/index",
+  "main": "src/mod.ts",
+  "types": "src/mod.ts",
   "files": [
     "dist"
   ],
