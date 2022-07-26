@@ -1,6 +1,6 @@
 {
   "name": "proxy_agent",
-  "version": "5.1.5",
+  "version": "5.1.6",
   "description": "An HTTP(s) and SOCKS proxy `http.Agent` implementation for HTTPS and SOCKS",
   "main": "mod.ts",
   "types": "mod.ts",
