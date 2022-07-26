@@ -29,12 +29,6 @@ Install with `npm`:
 npm i @sam01101/node-proxy-agent
 ```
 
-Import with `deno`:
-
-``` js
-import {SocksProxyAgent, HttpsProxyAgent} from "https://deno.land/x/proxy_agent/src/index.ts";
-```
-
 Examples
 --------
 
