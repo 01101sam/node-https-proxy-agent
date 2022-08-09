@@ -129,6 +129,17 @@ class HttpsProxyAgent extends Agent {
 	): Promise<net.Socket> {
 		const {proxy, secureEndpoint} = this
 
+		const host = await new Promise<string>((resolve, reject) => {
+			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+			try {
+				dns.lookup(proxy.hostname!, {}, (err, res) => err ? reject(err) : resolve(res))
+			} catch (e) {
+				reject(e)
+			}
+		});
+
+		proxy.host = host;
+
 		// Create a socket connection to the proxy server.
 		debug(`Creating \`${secureEndpoint ? 'tls' : 'net'}.Socket\`: %o`, proxy)
 		const socket: net.Socket = secureEndpoint ? tls.connect(proxy as tls.ConnectionOptions) : net.connect(proxy as net.NetConnectOpts)

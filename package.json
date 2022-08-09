@@ -1,6 +1,6 @@
 {
   "name": "@sam01101/node-proxy-agent",
-  "version": "5.1.4",
+  "version": "5.1.5",
   "description": "An HTTP(s) and SOCKS proxy `http.Agent` implementation for HTTPS and SOCKS",
   "main": "dist/index.js",
   "files": [
@@ -38,6 +38,7 @@
   "dependencies": {
     "agent-base": "6.0.2",
     "debug": "4",
+    "node-fetch": "^3.2.10",
     "socks": "^2.7.0"
   },
   "devDependencies": {
