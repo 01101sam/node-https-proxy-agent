@@ -35,6 +35,7 @@ describe('HttpsProxyAgent', () => {
 			serverPort = parseInt(server.address().port)
 			done()
 		})
+		server.on('error', err => console.error(err) && process.exit(1))
 	})
 
 	before(done => {
@@ -155,6 +156,7 @@ describe('HttpsProxyAgent', () => {
 				res.setEncoding('utf8')
 				res.on('data', b => data += b)
 				res.once('end', () => {
+					assert.strictEqual(200, res.statusCode)
 					data = JSON.parse(data)
 					assert.strictEqual(`localhost:${serverPort}`, data.host)
 					done()
@@ -171,10 +173,10 @@ describe('HttpsProxyAgent', () => {
 				port: serverPort,
 				hostname: 'localhost',
 				path: '/',
-				agent: new HttpsProxyAgent({
-					hostname: 'localhost',
-					port: sslProxyPort,
-					protocol: 'https',
+				agent: new HttpsProxyAgent(`https://localhost:${sslProxyPort}`,{
+					// hostname: 'localhost',
+					// port: sslProxyPort,
+					// protocol: 'https',
 					tls: {
 						ca: fs.readFileSync(`${__dirname}/cacert.pem`)
 					},

@@ -22,6 +22,8 @@ interface BaseSocksProxyAgentOptions {
 	auth?: string | null;
 	username?: string | null;
 	password?: string | null;
+	// DNS options
+	lookup?: typeof dns.lookup;
 }
 
 interface BaseHttpsProxyAgentOptions {  // extend BaseSocksProxyAgentOptions
@@ -36,6 +38,8 @@ interface BaseHttpsProxyAgentOptions {  // extend BaseSocksProxyAgentOptions
 	auth?: string | null;
 	username?: string | null;
 	password?: string | null;
+	// DNS options
+	lookup?: typeof dns.lookup;
 }
 
 export interface HttpsProxyAgentOptions extends AgentOptions, BaseHttpsProxyAgentOptions, Partial<Omit<URL & net.NetConnectOpts & tls.ConnectionOptions, keyof BaseHttpsProxyAgentOptions>> {
@@ -74,6 +78,7 @@ class HttpsProxyAgent extends Agent {
 	private readonly tlsSecureContext: tls.SecureContext | undefined
 	public readonly proxy: HttpsProxyAgentOptions
 	private readonly secureEndpoint: boolean
+	private readonly lookup: typeof dns.lookup
 	public timeout: number | null
 
 
@@ -87,6 +92,7 @@ class HttpsProxyAgent extends Agent {
 		// Defaults to `false`.
 		this.secureEndpoint = Boolean(this.proxy.protocol?.startsWith('https'))
 		this.tlsSecureContext = proxyOptions.tls ? tls.createSecureContext(proxyOptions.tls) : undefined
+		this.lookup = proxyOptions.lookup ?? dns.lookup
 		this.timeout = proxyOptions.timeout ?? null
 	}
 
@@ -128,17 +134,28 @@ class HttpsProxyAgent extends Agent {
 		opts: RequestOptions
 	): Promise<net.Socket> {
 		const {proxy, secureEndpoint} = this
+		let {host, port, lookup: lookupCallback} = opts
 
-		const host = await new Promise<string>((resolve, reject) => {
-			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+		if (!host) throw new Error('No `host` defined!')
+
+		// Client-side DNS resolution for http / https proxy.
+        opts.host = await new Promise<string>((resolve, reject) => {
+			const lookup = lookupCallback ?? this.lookup
 			try {
-				dns.lookup(proxy.hostname!, {}, (err, res) => err ? reject(err) : resolve(res))
+				lookup(host!, {}, (err, res) => err ? reject(err) : resolve(res))
 			} catch (e) {
 				reject(e)
 			}
 		});
 
-		proxy.host = host;
+		proxy.host = await new Promise<string>((resolve, reject) => {
+			const lookup = lookupCallback ?? this.lookup
+			try {
+				lookup(proxy.hostname!, {}, (err, res) => err ? reject(err) : resolve(res))
+			} catch (e) {
+				reject(e)
+			}
+		});
 
 		// Create a socket connection to the proxy server.
 		debug(`Creating \`${secureEndpoint ? 'tls' : 'net'}.Socket\`: %o`, proxy)
@@ -239,6 +256,7 @@ class HttpsProxyAgent extends Agent {
 class SocksProxyAgent extends Agent {
 	private readonly tlsConnectionOptions: tls.ConnectionOptions | undefined
 	public readonly proxy: SocksProxy
+	private readonly lookup: typeof dns.lookup
 	public timeout: number | null
 
 	constructor(input: string | SocksProxyAgentOptions, options?: SocksProxyAgentOptions) {
@@ -248,6 +266,7 @@ class SocksProxyAgent extends Agent {
 
 		this.proxy = SocksProxyAgent._parseSocksProxy(proxyOptions)
 		this.tlsConnectionOptions = proxyOptions.tls != null ? proxyOptions.tls : {}
+		this.lookup = proxyOptions.lookup ?? dns.lookup
 		this.timeout = proxyOptions.timeout ?? null
 	}
 
@@ -317,11 +336,9 @@ class SocksProxyAgent extends Agent {
 
 		// Client-side DNS resolution for "4" and "5" socks proxy versions.
 		host = await new Promise<string>((resolve, reject) => {
-			// Use the request's custom lookup, if one was configured:
-			const lookupFn = lookupCallback ?? dns.lookup
-			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+			const lookup = lookupCallback ?? this.lookup
 			try {
-				lookupFn(host!, {}, (err, res) => err ? reject(err) : resolve(res))
+				lookup(host!, {}, (err, res) => err ? reject(err) : resolve(res))
 			} catch (e) {
 				reject(e)
 			}
