@@ -32,6 +32,36 @@ npm i @sam01101/node-proxy-agent
 Examples
 --------
 
+### Common
+
+#### DNS lookup example
+
+``` js
+import fetch from "node-fetch";
+import {HttpsProxyAgent} from '@sam01101/node-proxy-agent';
+
+(async () => {
+	// HTTP/HTTPS proxy to connect to
+	const proxy = process.env.http_proxy || 'http://168.63.76.32:3128';
+	console.log('using proxy server %j', proxy);
+
+	// HTTPS endpoint for the proxy to connect to
+	const endpoint = process.argv[2] || 'https://one.one.one.one/cdn-cgi/trace';
+	console.log('attempting to GET %j', endpoint);
+
+	const response = await fetch(endpoint, {
+		// create an instance of the `HttpsProxyAgent` class with the proxy server information
+		agent: new HttpsProxyAgent(proxy, {
+            // Note: options is empty but reserved for backward compatibility
+		    lookup: (hostname, options, callback) => {
+                console.log(`Lookup ${hostname}`);
+                return callback(null, '1.1.1.1', 4);
+		})
+	});
+	console.log(`HTTP Status: ${response.status} OK: ${response.ok}`);
+})();
+```
+
 ### HttpsProxyAgent
 
 #### `https` module example (TypeScript)
