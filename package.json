@@ -1,6 +1,6 @@
 {
   "name": "@sam01101/node-proxy-agent",
-  "version": "5.1.7",
+  "version": "5.1.8",
   "description": "An HTTP(s) and SOCKS proxy `http.Agent` implementation for HTTPS and SOCKS",
   "main": "dist/index.js",
   "files": [
