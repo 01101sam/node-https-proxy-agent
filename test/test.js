@@ -150,7 +150,8 @@ describe('HttpsProxyAgent', () => {
 					hostname: 'localhost',
 					port: proxyPort,
 					protocol: 'http',
-					tls: {rejectUnauthorized: false}
+					tls: {rejectUnauthorized: false},
+					rejectUnauthorized: false
 				}),
 			}, res => {
 				let data = ''
@@ -182,7 +183,7 @@ describe('HttpsProxyAgent', () => {
 						ca: fs.readFileSync(`${__dirname}/cacert.pem`)
 					},
 					rejectUnauthorized: false
-				})
+				}),
 			}, res => {
 				let data = ''
 				res.setEncoding('utf8')
@@ -365,6 +366,7 @@ describe('HttpsProxyAgent', () => {
 					hostname: 'localhost',
 					port: proxyPort,
 					protocol: 'http',
+					tls: {rejectUnauthorized: false},
 					rejectUnauthorized: false
 				}),
 				rejectUnauthorized: false
@@ -393,7 +395,8 @@ describe('HttpsProxyAgent', () => {
 					hostname: 'localhost',
 					port: sslProxyPort,
 					protocol: 'https',
-					tls: {rejectUnauthorized: false}
+					tls: {rejectUnauthorized: false},
+					rejectUnauthorized: false
 				}),
 				rejectUnauthorized: false,
 			}, res => {
@@ -421,7 +424,8 @@ describe('HttpsProxyAgent', () => {
 					hostname: 'localhost',
 					port: sslProxyPort,
 					protocol: 'https',
-					tls: {rejectUnauthorized: false}
+					tls: {rejectUnauthorized: false},
+					rejectUnauthorized: false
 				}),
 				rejectUnauthorized: false,
 			}, res => {
@@ -603,6 +607,7 @@ describe('SocksProxyAgent', () => {
 				path: '/foo',
 				agent: new SocksProxyAgent(`socks://localhost:${socksPort}`, {
 					tls: {rejectUnauthorized: false},
+					rejectUnauthorized: false
 				}),
 				rejectUnauthorized: false,
 				headers: { foo: 'bar' }
