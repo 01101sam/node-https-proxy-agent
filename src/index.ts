@@ -30,7 +30,7 @@ interface BaseHttpsProxyAgentOptions {  // extend BaseSocksProxyAgentOptions
 	hostname?: string;
 	port?: string | number;
 	protocol?: string;
-	tls?: tls.SecureContextOptions | null;
+	tls?: tls.ConnectionOptions | null;
 	headers?: OutgoingHttpHeaders;
 	secureEndpoint?: boolean;  // HTTPS / TLS Connection
 	timeout?: number;
@@ -52,7 +52,16 @@ function _normalizeProxyOptions(
 	input: string | SocksProxyAgentOptions | HttpsProxyAgentOptions
 ): SocksProxyAgentOptions | HttpsProxyAgentOptions {
 	let proxyOptions
-	if (typeof input === 'string') proxyOptions = new URL(input)
+	if (typeof input === 'string') {
+		const urlObj = new URL(input);
+		proxyOptions = {
+			protocol: urlObj.protocol,
+			hostname: urlObj.hostname,
+			port: Number(urlObj.port),
+			pathname: urlObj.pathname,
+			search: urlObj.search,
+		}
+	}
 	else proxyOptions = input
 	if (!proxyOptions) throw new TypeError('A proxy server `host` and `port` must be specified!')
 
@@ -76,6 +85,7 @@ function _normalizeProxyOptions(
  */
 class HttpsProxyAgent extends Agent {
 	private readonly tlsSecureContext: tls.SecureContext | undefined
+	private readonly rejectUnauthorized: boolean
 	public readonly proxy: HttpsProxyAgentOptions
 	private readonly secureEndpoint: boolean
 	private readonly lookup: typeof dns.lookup
@@ -92,6 +102,7 @@ class HttpsProxyAgent extends Agent {
 		// Defaults to `false`.
 		this.secureEndpoint = Boolean(this.proxy.protocol?.startsWith('https'))
 		this.tlsSecureContext = proxyOptions.tls ? tls.createSecureContext(proxyOptions.tls) : undefined
+		this.rejectUnauthorized = proxyOptions.tls ? Boolean(proxyOptions.tls.rejectUnauthorized) : true
 		this.lookup = proxyOptions.lookup ?? dns.lookup
 		this.timeout = proxyOptions.timeout ?? null
 	}
@@ -149,9 +160,8 @@ class HttpsProxyAgent extends Agent {
 		});
 
 		proxy.host = await new Promise<string>((resolve, reject) => {
-			const lookup = lookupCallback ?? this.lookup
 			try {
-				lookup(proxy.hostname!, {}, (err, res) => err ? reject(err) : resolve(res))
+				dns.lookup(proxy.hostname!, {}, (err, res) => err ? reject(err) : resolve(res))
 			} catch (e) {
 				reject(e)
 			}
@@ -169,7 +179,7 @@ class HttpsProxyAgent extends Agent {
 			})
 		}
 
-		const headers: OutgoingHttpHeaders = {...proxy.headers}
+		const headers: OutgoingHttpHeaders = proxy.headers ?? {}
 		const hostname = `${opts.host}:${opts.port}`
 		let payload = `CONNECT ${hostname} HTTP/1.1\r\n`
 
@@ -177,7 +187,7 @@ class HttpsProxyAgent extends Agent {
 		if (proxy.auth) headers['Proxy-Authorization'] = `Basic ${Buffer.from(proxy.auth).toString('base64')}`
 
 		headers.Host = hostname
-		headers.Connection = 'close'
+		// headers.Connection = 'close'
 
 		for (const name of Object.keys(headers)) payload += `${name}: ${headers[name]}\r\n`
 
@@ -202,7 +212,8 @@ class HttpsProxyAgent extends Agent {
 					...omit(opts, 'host', 'hostname', 'path', 'port'),
 					socket,
 					servername: opts.servername || opts.host,
-					secureContext: this.tlsSecureContext
+					secureContext: this.tlsSecureContext,
+					rejectUnauthorized: this.rejectUnauthorized
 				})
 				return new Promise((resolve, reject) => {
 					const errCb = (err: Error) => reject(err)

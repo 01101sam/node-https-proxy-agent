@@ -97,7 +97,7 @@ describe('HttpsProxyAgent', () => {
 		it('should accept a "string" proxy argument', () => {
 			const agent = new HttpsProxyAgent(`http://localhost:${proxyPort}`)
 			assert.strictEqual('localhost', agent.proxy.hostname)
-			assert.strictEqual(String(proxyPort), agent.proxy.port)
+			assert.strictEqual(proxyPort, agent.proxy.port)
 		})
 		it('should accept a `new URL()` result object argument', () => {
 			const opts = new URL(`http://localhost:${proxyPort}`)
