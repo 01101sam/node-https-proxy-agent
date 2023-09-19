@@ -149,7 +149,8 @@ describe('HttpsProxyAgent', () => {
 				agent: new HttpsProxyAgent({
 					hostname: 'localhost',
 					port: proxyPort,
-					protocol: 'http'
+					protocol: 'http',
+					tls: {rejectUnauthorized: false}
 				})
 			}, res => {
 				let data = ''
@@ -392,9 +393,8 @@ describe('HttpsProxyAgent', () => {
 					hostname: 'localhost',
 					port: sslProxyPort,
 					protocol: 'https',
-					rejectUnauthorized: false
+					tls: {rejectUnauthorized: false}
 				}),
-				rejectUnauthorized: false
 			}, res => {
 				let data = ''
 				res.setEncoding('utf8')
@@ -420,9 +420,8 @@ describe('HttpsProxyAgent', () => {
 					hostname: 'localhost',
 					port: sslProxyPort,
 					protocol: 'https',
-					rejectUnauthorized: false
+					tls: {rejectUnauthorized: false}
 				}),
-				rejectUnauthorized: false
 			}, res => {
 				let data = ''
 				res.setEncoding('utf8')
