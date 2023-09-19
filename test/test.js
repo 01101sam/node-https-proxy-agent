@@ -151,7 +151,7 @@ describe('HttpsProxyAgent', () => {
 					port: proxyPort,
 					protocol: 'http',
 					tls: {rejectUnauthorized: false}
-				})
+				}),
 			}, res => {
 				let data = ''
 				res.setEncoding('utf8')
@@ -395,6 +395,7 @@ describe('HttpsProxyAgent', () => {
 					protocol: 'https',
 					tls: {rejectUnauthorized: false}
 				}),
+				rejectUnauthorized: false,
 			}, res => {
 				let data = ''
 				res.setEncoding('utf8')
@@ -422,6 +423,7 @@ describe('HttpsProxyAgent', () => {
 					protocol: 'https',
 					tls: {rejectUnauthorized: false}
 				}),
+				rejectUnauthorized: false,
 			}, res => {
 				let data = ''
 				res.setEncoding('utf8')
@@ -599,7 +601,9 @@ describe('SocksProxyAgent', () => {
 				port: httpsPort,
 				hostname: 'localhost',
 				path: '/foo',
-				agent: new SocksProxyAgent(`socks://localhost:${socksPort}`),
+				agent: new SocksProxyAgent(`socks://localhost:${socksPort}`, {
+					tls: {rejectUnauthorized: false},
+				}),
 				rejectUnauthorized: false,
 				headers: { foo: 'bar' }
 			}, res => {
